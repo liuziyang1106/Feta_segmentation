@@ -104,7 +104,7 @@ class SegEval(object):
         if (len(metrics_input) == 0):
             return None
         else:
-            metrics = {"acc", "dice", "hausdorff", "iou", "mcc", "sensitivity", "precision", "F measure"}
+            metrics = {"acc", "dice", "hausdorff", "iou", "mcc", "sensitivity", "precision", "F measure", "volume similarity"}
             metrics_dict = OrderedDict()
             for metric in metrics_input:
                 if (metric in metrics):
@@ -204,6 +204,11 @@ class SegEval(object):
             else:
                 return (2 * Tp) / (2 * Tp + Fp + Fn)
 
+    def __get_volume_similarity(self, img1, img2, filename):
+        if (self.__valid_eval_img(img1, img2, filename)):
+            volume_similarity_filter = sitk.LabelOverlapMeasuresImageFilter()
+            volume_similarity_filter.Execute(img1, img2)
+            return volume_similarity_filter.GetVolumeSimilarity()
 
     def __evaluation_by_img(self, img1, img2, filename, metrics, metrics_dict):
         results_metric = []
@@ -231,6 +236,8 @@ class SegEval(object):
                 metrics_dict["precision"] = self.__get_precision(img1, img2, filename)
             if ("F measure" in metrics_dict):
                 metrics_dict["F measure"] = self.__get_F_measure(img1, img2, filename)
+            if ("volume similarity" in metrics_dict):
+                metrics_dict["volume similarity"] = self.__get_volume_similarity(img1, img2, filename)
             for metric in metrics_dict:
                 results_metric.append(metric)
                 results_value.append(metrics_dict[metric])
@@ -401,8 +408,8 @@ class SegEval(object):
         print("Visualization results have been saved to {}!".format(export_path))
 
 if __name__ == "__main__":
-    test1 = SegEval("data/sub-040_predict_epoch15.nii.gz", "data/test/sub-040_dseg.nii.gz")
-    test1.evaluation_by_file(["dice", "acc", "hausdorff"])
+    test1 = SegEval("data/sub-041_predict_epoch15.nii.gz", "data/test/sub-041_dseg.nii.gz")
+    test1.evaluation_by_file(["dice", "acc", "hausdorff", "volume similarity"])
     test1.export_eval_results("eval_results/")
 
     # test1.visualize_file("/Users/catherine/Desktop/Research/eyeball-segmentation-evaluation/img-eyeball/HB039124OAV_00351_2015-07-13_4_img.nii")
