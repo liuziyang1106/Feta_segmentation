@@ -1,28 +1,18 @@
-from os.path import splitext
-from os import listdir
 import numpy as np
-from glob import glob
-import torch
-from torch.utils.data import Dataset
-import logging
-from PIL import Image
+import torch,random
+import nibabel as nib
 import SimpleITK as sitk
-
-import argparse
-import logging
-import os
-import sys
-
-import numpy as np
-import torch
-import torch.nn as nn
-from torch import optim
-from tqdm import tqdm
-
-from torch.utils.data import DataLoader, random_split
+from glob import glob
+from os import listdir
 from scipy import ndimage
 from torchvision import transforms
-import random
+from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, random_split
+
+def nii_loader(path):
+    img = nib.load(str(path))
+    data = img.get_fdata()
+    return data
 
 def white0(image, threshold=1):
     "standardize voxels with value > threshold"
@@ -41,7 +31,6 @@ def white0(image, threshold=1):
         ret = image * 0.
     return ret
 
-
 class BasicDataset(Dataset):
     def __init__(self, imgs_dir, masks_dir, img_suffix='_T2w', mask_suffix='_dseg',crop_size=(64,64,64)):
         self.imgs_dir = imgs_dir
@@ -51,7 +40,6 @@ class BasicDataset(Dataset):
         self.ids = [file.replace('_T2w', '').split('.')[0] for file in listdir(imgs_dir)
                     if not file.startswith('.')]
         self.crop_size = crop_size
-        logging.info(f'Creating dataset with {len(self.ids)} examples')
 
     @staticmethod
     def randomCrop(img, mask, width, height, depth):
@@ -81,11 +69,9 @@ class BasicDataset(Dataset):
         assert len(img_file) == 1, \
             f'Either no image or multiple images found for the ID {idx}: {img_file}'
 
-        mask = sitk.ReadImage(mask_file[0])
-        img = sitk.ReadImage(img_file[0])
+        mask = nii_loader(mask_file[0])
+        img = nii_loader(img_file[0])
 
-        mask = sitk.GetArrayFromImage(mask)
-        img = sitk.GetArrayFromImage(img)
         img = white0(img)
 
         img, mask = self.randomCrop(img, mask, self.crop_size[0], self.crop_size[1], self.crop_size[2])
@@ -102,15 +88,10 @@ class BasicDataset(Dataset):
             'id': idx
         }
 
-class FeTADataset(BasicDataset):
-    def __init__(self, imgs_dir, masks_dir):
-        super().__init__(imgs_dir, masks_dir)
-
-
 if __name__ == "__main__":
 
-    dir_img = '../data/imgs_crop/'
-    dir_mask = '../data/masks_crop/'
+    dir_img = './data/imgs_crop/'
+    dir_mask = './data/masks_crop/'
     dir_checkpoint = 'checkpoints/'
     val_percent = 0.2
 
