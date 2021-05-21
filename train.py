@@ -22,13 +22,7 @@ dir_mask = 'data/masks_crop/'
 dir_checkpoint = 'checkpoints/'
 
 
-def train_net(net,
-              device,
-              epochs=5,
-              batch_size=1,
-              lr=0.001,
-              val_percent=0.1,
-              save_cp=True):
+def train_net(net, device, epochs=5, batch_size=1, lr=0.001, val_percent=0.1, save_cp=True):
 
     dataset = BasicDataset(dir_img, dir_mask)
     n_val = int(len(dataset) * val_percent)
