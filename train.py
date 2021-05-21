@@ -6,17 +6,15 @@ import torch
 import torch.nn as nn
 from torch import optim
 import datetime
-from unet import UNet
+from model_zoo import UNet
 import tensorboardX
-from utils.dataset import BasicDataset
+from dataset import BasicDataset
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from config import args
 
-
 torch.backends.cudnn.enabled = True
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-
 
 def main():
     best_metric = 100
