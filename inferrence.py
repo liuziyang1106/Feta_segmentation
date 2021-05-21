@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from model_zoo import UNet
 import nibabel as nib
 
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def predict_mask(net, full_img, device, out_threshold=0.5):
     net.eval()
@@ -22,10 +23,7 @@ def predict_mask(net, full_img, device, out_threshold=0.5):
     mask = np.argmax(full_mask > out_threshold, axis=0).astype(np.int16)
     return mask
 
-def Inference_single_image(net, model_ckpt, img_path, output_path='./'):
-    
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-   
+def Inference_single_image(net, model_ckpt, img_path, output_path='./'):   
     net.to(device=device)
     net.load_state_dict(torch.load(model_ckpt, map_location=device)['state_dict'])
 
@@ -38,11 +36,9 @@ def Inference_single_image(net, model_ckpt, img_path, output_path='./'):
     mask = predict_mask(net=net,full_img=img_data,out_threshold=0.5,device=device)
     inference_path = os.path.join(output_path, sub_id)
     predict_img = nib.Nifti1Image(mask, img_affine).to_filename(inference_path)
+    shutil.copyfile(img_path,os.path.join(output_path, (img_path.split('/')[-1])))
 
 def Inference_Folder_images(net, model_ckpt, folder_path, output_path='./'):
-    
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-   
     net.to(device=device)
     net.load_state_dict(torch.load(model_ckpt, map_location=device)['state_dict'])
 
