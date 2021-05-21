@@ -126,10 +126,10 @@ if __name__ == "__main__":
     train_loader = DataLoader(train, batch_size=1, shuffle=True, num_workers=8, pin_memory=True)
     val_loader = DataLoader(val, batch_size=1, shuffle=False, num_workers=8, pin_memory=True, drop_last=True)
 
-    for batch in train_loader:
+    for i, batch in enumerate(train_loader):
         imgs = batch['image']
         true_masks = batch['mask']
-        print(imgs.shape, true_masks.shape)
+        print(i, imgs.shape, true_masks.shape)
         # # print(true_masks.max())
 
         # if true_masks.max() != 7:

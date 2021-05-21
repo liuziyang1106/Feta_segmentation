@@ -13,5 +13,6 @@ parser.add_argument('--print_freq', type=int, default=1)
 parser.add_argument('--output_dir', default='./runs/')
 parser.add_argument('--train_img_folder', default='./data/imgs_crop/')
 parser.add_argument('--train_mask_folder', default='./data/masks_crop/')
+parser.add_argument('--num_workers', type=int, default=8)
 
 args = parser.parse_args()
