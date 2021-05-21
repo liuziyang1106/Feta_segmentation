@@ -41,6 +41,9 @@ def Inference_single_image(net, model_ckpt, img_path, output_path='./'):
 def Inference_Folder_images(net, model_ckpt, folder_path, output_path='./'):
     net.to(device=device)
     net.load_state_dict(torch.load(model_ckpt, map_location=device)['state_dict'])
+    
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
 
     for img_path in os.listdir(folder_path):
         if 'T2w' in img_path:

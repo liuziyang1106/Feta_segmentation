@@ -2,11 +2,13 @@ import logging
 import os
 import sys
 import numpy as np
+from numpy.core.records import array
 import torch
 import torch.nn as nn
 from torch import optim
 import datetime
 from model_zoo import UNet
+from inferrence import *
 import tensorboardX
 from dataset import BasicDataset
 from torch.utils.data import DataLoader, random_split
@@ -75,10 +77,10 @@ def main():
 
         save_checkpoint({'epoch': epoch
                         ,'state_dict': model.state_dict()}
-                        , is_best
-                        , args.output_dir
-                        , model_name=args.model
-                        )
+                        , is_best, args.output_dir, model_name=args.model)
+    model_ckpt = os.path.join(args.output_dir, args.model+'_best_model.pth.tar')
+    Inference_Folder_images(model, model_ckpt, args.train_img_folder,os.path.join(args.output_dir, 'pred_train_mask/'))
+    Inference_Folder_images(model, model_ckpt, args.test_img_folder,os.path.join(args.output_dir, 'pred_test_mask/'))
     return 0
 
 def train(train_loader, model, criterion, aux_criterion, optimizer, epoch, device):
