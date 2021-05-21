@@ -10,12 +10,16 @@ parser.add_argument('--load', dest='load', type=str, default=False,help='Load mo
 parser.add_argument('--scale', dest='scale', type=float, default=0.5,help='Downscaling factor of the images')
 parser.add_argument('--validation', dest='val', type=float, default=10.0,help='Percent of the data that is used as validation (0-100)')
 parser.add_argument('--print_freq', type=int, default=1)
+
+parser.add_argument('--num_workers', type=int, default=8)
+parser.add_argument('--crop_size',default=(64,128,128))
+parser.add_argument('--model',type=str, default='unet')
+parser.add_argument('--loss',type=str, default='CE')
+parser.add_argument('--aux_loss',type=str, default='dice')
+
 parser.add_argument('--output_dir', default='./runs/')
 parser.add_argument('--train_img_folder', default='./data/imgs_crop/')
 parser.add_argument('--train_mask_folder', default='./data/masks_crop/')
 parser.add_argument('--test_img_folder', default='./data/test/')
-parser.add_argument('--num_workers', type=int, default=8)
-parser.add_argument('--crop_size',default=(64,128,128))
-parser.add_argument('--model',type=str, default='unet')
 
 args = parser.parse_args()
