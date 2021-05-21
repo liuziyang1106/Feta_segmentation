@@ -1,6 +1,6 @@
 #!/bin/bash
 
-save_path=./runs/test
+save_path=./runs/test/
 CUDA_VISIBLE_DEVICES=0     python train.py     \
 --output_dir          ${save_path}             \
 --batch_size          2                        \

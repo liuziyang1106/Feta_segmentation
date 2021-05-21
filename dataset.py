@@ -24,39 +24,33 @@ from scipy import ndimage
 from torchvision import transforms
 import random
 
-# class RandomCrop3D():
-#     def __init__(self, img_sz, crop_sz):
-#         c, h, w, d = img_sz
-#         assert (h, w, d) > crop_sz
-#         self.img_sz  = tuple((h, w, d))
-#         self.crop_sz = tuple(crop_sz)
-        
-#     def __call__(self, x):
-#         slice_hwd = [self._get_slice(i, k) for i, k in zip(self.img_sz, self.crop_sz)]
-#         return self._crop(x, *slice_hwd)
-        
-#     @staticmethod
-#     def _get_slice(sz, crop_sz):
-#         try : 
-#             lower_bound = torch.randint(sz-crop_sz, (1,)).item()
-#             return lower_bound, lower_bound + crop_sz
-#         except: 
-#             return (None, None)
-    
-#     @staticmethod
-#     def _crop(x, slice_h, slice_w, slice_d):
-#         return x[:, slice_h[0]:slice_h[1], slice_w[0]:slice_w[1], slice_d[0]:slice_d[1]]
+def white0(image, threshold=1):
+    "standardize voxels with value > threshold"
+    image = image.astype(np.float32)
+    mask = (image > threshold).astype(int)
 
+    image_h = image * mask
+    image_l = image * (1 - mask)
+
+    mean = np.sum(image_h) / np.sum(mask)
+    std = np.sqrt(np.sum(np.abs(image_h - mean)**2) / np.sum(mask))
+
+    if std > 0:
+        ret = (image_h - mean) / std + image_l
+    else:
+        ret = image * 0.
+    return ret
 
 
 class BasicDataset(Dataset):
-    def __init__(self, imgs_dir, masks_dir, img_suffix='_T2w', mask_suffix='_dseg'):
+    def __init__(self, imgs_dir, masks_dir, img_suffix='_T2w', mask_suffix='_dseg',crop_size=(64,64,64)):
         self.imgs_dir = imgs_dir
         self.masks_dir = masks_dir
         self.img_suffix = img_suffix
         self.mask_suffix = mask_suffix
         self.ids = [file.replace('_T2w', '').split('.')[0] for file in listdir(imgs_dir)
                     if not file.startswith('.')]
+        self.crop_size = crop_size
         logging.info(f'Creating dataset with {len(self.ids)} examples')
 
     @staticmethod
@@ -92,8 +86,9 @@ class BasicDataset(Dataset):
 
         mask = sitk.GetArrayFromImage(mask)
         img = sitk.GetArrayFromImage(img)
+        img = white0(img)
 
-        img, mask = self.randomCrop(img, mask, 32, 32, 32)
+        img, mask = self.randomCrop(img, mask, self.crop_size[0], self.crop_size[1], self.crop_size[2])
         
         img = img[np.newaxis, :]
         mask = mask[np.newaxis, :]
