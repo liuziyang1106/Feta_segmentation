@@ -2,7 +2,7 @@
 import numpy as np
 import torch,os,shutil
 import torch.nn.functional as F
-from model_zoo import UNet
+from model_zoo.unet3d import UNet
 import nibabel as nib
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
