@@ -1,15 +1,11 @@
-import logging
-import os
-import sys
+import tensorboardX
+import os,torch,datetime,sys,logging
 import numpy as np
-from numpy.core.records import array
-import torch
 import torch.nn as nn
 from torch import optim
-import datetime
 from model_zoo import UNet
 from inferrence import *
-import tensorboardX
+from dice_loss import dice_coeff, DiceCoeff
 from dataset import BasicDataset
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
@@ -18,7 +14,7 @@ from config import args
 torch.backends.cudnn.enabled = True
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-def main():
+def main(res):
     best_metric = 100
 
     model = UNet(n_channels=1, n_classes=8, trilinear=True).to(device)
@@ -36,24 +32,27 @@ def main():
                            ,num_workers=args.num_workers, pin_memory=True, drop_last=True)
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-8)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min' if model.n_classes > 1 else 'max', patience=2)
+    # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min' if model.n_classes > 1 else 'max', patience=2)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, 10,gamma=0.2)
 
     # Setting the loss function
-    if model.n_classes > 1:
-        criterion = nn.CrossEntropyLoss()
-    else:
-        criterion = nn.BCEWithLogitsLoss()
+    loss_func_dict = {'CE': nn.CrossEntropyLoss().to(device)
+                        ,'dice':dice_coeff().to(device)
+                        ,'L1':nn.L1Loss().to(device)
+                        ,'L2':nn.MSELoss().to(device)}
+
+    criterion = loss_func_dict[args.loss]
+    aux_criterion = loss_func_dict[args.aux_loss]
 
     saved_metrics, saved_epos = [], []
     writer = tensorboardX.SummaryWriter(args.output_dir)
 
     for epoch in range(args.epochs):
-        train_loss = train(train_loader, model=model, criterion=criterion, aux_criterion = None
+        train_loss = train(train_loader, model=model, criterion=criterion, aux_criterion = aux_criterion
                           ,optimizer = optimizer, epoch = epoch, device = device)
-        val_loss = valiation(val_loader=valid_loader, model=model, criterion=criterion, aux_criterion=None
+        val_loss = valiation(val_loader=valid_loader, model=model, criterion=criterion, aux_criterion=aux_criterion
                             ,epoch=epoch, device=device)
-        scheduler.step(val_loss)
-
+        scheduler.step()
 
         # ===========  write in tensorboard scaler =========== #
         for tag, value in model.named_parameters():
@@ -78,6 +77,23 @@ def main():
         save_checkpoint({'epoch': epoch
                         ,'state_dict': model.state_dict()}
                         , is_best, args.output_dir, model_name=args.model)
+    # =========== write traning and validation log =========== #
+    os.system('echo " ================================== "')
+    os.system('echo " ==== TRAIN MAE mtc:{:.5f}" >> {}'.format(train_loss, res))
+    
+    print('Epo - Mtc')
+    mtc_epo = dict(zip(saved_metrics, saved_epos))
+    rank_mtc = sorted(mtc_epo.keys(), reverse=False)
+    try:
+        for i in range(5):
+            print('{:03} {:.3f}'.format(mtc_epo[rank_mtc[i]]
+                                       ,rank_mtc[i]))
+            os.system('echo "epo:{:03} mtc:{:.3f}" >> {}'.format(mtc_epo[rank_mtc[i]],rank_mtc[i],res))
+    except:
+        pass
+    
+    # ===========  clean up ===========  #
+    torch.cuda.empty_cache()
     model_ckpt = os.path.join(args.output_dir, args.model+'_best_model.pth.tar')
     Inference_Folder_images(model, model_ckpt, args.train_img_folder,os.path.join(args.output_dir, 'pred_train_mask/'))
     Inference_Folder_images(model, model_ckpt, args.test_img_folder,os.path.join(args.output_dir, 'pred_test_mask/'))
@@ -178,4 +194,4 @@ if __name__ == '__main__':
         
     print('=> training from scratch.\n')
     os.system('echo "train {}" >> {}'.format(datetime.datetime.now(), res))
-    main()
+    main(res)
