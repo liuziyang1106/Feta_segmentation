@@ -39,9 +39,9 @@ def main(res):
 
     # Setting the loss function
     loss_func_dict = {'CE': nn.CrossEntropyLoss().to(device)
-                        ,'dice':DiceLoss().to(device)
-                        ,'L1':nn.L1Loss().to(device)
-                        ,'L2':nn.MSELoss().to(device)}
+                     ,'dice':DiceLoss().to(device)
+                     ,'L1':nn.L1Loss().to(device)
+                     ,'L2':nn.MSELoss().to(device)}
 
     criterion = loss_func_dict[args.loss]
     aux_criterion = loss_func_dict[args.aux_loss]
@@ -103,8 +103,9 @@ def main(res):
 
 def train(train_loader, model, criterion, aux_criterion, optimizer, epoch, device):
 
-    Epoch_loss = AverageMeter()
+    Epoch_loss1 = AverageMeter()
     AUX_loss = AverageMeter()
+    Total_loss = AverageMeter()
 
     for i, batch in enumerate(train_loader):
         imgs = batch['image']
@@ -122,22 +123,24 @@ def train(train_loader, model, criterion, aux_criterion, optimizer, epoch, devic
 
         # # Remove the axis
         true_masks = torch.squeeze(true_masks, dim=1)
-        loss = criterion(masks_pred, true_masks)
-
+        loss1 = criterion(masks_pred, true_masks)
         aux_loss = aux_criterion(masks_pred, true_masks)
+        loss = loss1 + aux_loss
         
-        Epoch_loss.update(loss, imgs.size(0))
+        Epoch_loss1.update(loss1, imgs.size(0))
         AUX_loss.update(aux_loss, imgs.size(0))
+        Total_loss.update(loss, imgs.size(0))
         if i % args.print_freq == 0:
             print('Epoch: [{0} / {1}]   [step {2}/{3}] \t'
-                'Loss {loss.val:.4f} ({loss.avg:.4f})  \t'
+                'Tot_Loss {tot_loss.val:.4f} ({tot_loss.avg:.4f})  \t'
+                'Main_Loss {loss.val:.4f} ({loss.avg:.4f})  \t'
                 'Aux_Loss {aux_loss.val:.4f} ({aux_loss.avg:.4f})  \t'.format
-                (epoch, args.epochs, i, len(train_loader), loss=Epoch_loss, aux_loss=AUX_loss))
+                (epoch, args.epochs, i, len(train_loader), tot_loss=Total_loss,loss=Epoch_loss1, aux_loss=AUX_loss))
     
         loss.backward()
         optimizer.step()
 
-    return Epoch_loss.avg
+    return Epoch_loss1.avg
 
 def valiation(val_loader, model, criterion, aux_criterion, epoch, device):
     Epoch_loss = AverageMeter()
@@ -164,7 +167,8 @@ def valiation(val_loader, model, criterion, aux_criterion, epoch, device):
             Epoch_loss.update(loss, imgs.size(0))
             AUX_loss.update(aux_loss, imgs.size(0))
 
-        print('Valid: [steps {0}], Loss {loss.avg:.4f} Aux_Loss {Aux_loss.avg:.4f}'.format(len(val_loader), loss=Epoch_loss, Aux_loss=AUX_loss))
+        print('Valid: [steps {0}], Main_Loss {loss.avg:.4f} Aux_Loss {Aux_loss.avg:.4f}'.format(
+               len(val_loader), loss=Epoch_loss, Aux_loss=AUX_loss))
     return Epoch_loss.avg
 
 def save_checkpoint(state, is_best, out_dir, model_name):
