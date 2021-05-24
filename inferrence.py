@@ -16,7 +16,7 @@ def predict_mask(net, full_img, device, out_threshold=0.5):
 
     with torch.no_grad():
         output = net(img)
-        probs = torch.sigmoid(output)
+        probs = torch.softmax(output, dim=1)
         probs = probs.squeeze(0)
         full_mask = probs.squeeze().cpu().numpy()
     mask = np.argmax(full_mask > out_threshold, axis=0).astype(np.int16)
@@ -59,12 +59,12 @@ def Inference_Folder_images(net, model_ckpt, folder_path, output_path='./'):
 
 
 if __name__ == "__main__":
-    model = "./runs/test_64*128*128/unet_best_model.pth.tar"
+    model = "./runs/test_dice_loss_64*64*128/unet_best_model.pth.tar"
     img_path = "data/imgs_crop/sub-015_T2w.nii.gz"
-    folder = "data/test/"
+    folder = "data/imgs_crop/"
     net = UNet(n_channels=1, n_classes=8)
     # Inference_single_image(net, model, img_path)
-    Inference_Folder_images(net, model, folder,'data')
+    Inference_Folder_images(net, model, folder,'data/inference/')
 
     
 
