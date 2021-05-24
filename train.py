@@ -35,7 +35,7 @@ def main(res):
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-8)
     # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min' if model.n_classes > 1 else 'max', patience=2)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, 10,gamma=0.2)
+    scheduler = optim.lr_scheduler.StepLR(optimizer,step_size=10,gamma=0.2,verbose=1)
 
     # Setting the loss function
     loss_func_dict = {'CE': nn.CrossEntropyLoss().to(device)
@@ -50,9 +50,9 @@ def main(res):
     writer = tensorboardX.SummaryWriter(args.output_dir)
 
     for epoch in range(args.epochs):
-        train_loss = train(train_loader, model=model, criterion=criterion, aux_criterion = aux_criterion
+        train_loss, train_aux_loss = train(train_loader, model=model, criterion=criterion, aux_criterion = aux_criterion
                           ,optimizer = optimizer, epoch = epoch, device = device)
-        val_loss = valiation(val_loader=valid_loader, model=model, criterion=criterion, aux_criterion=aux_criterion
+        val_loss, val_aux_loss = valiation(val_loader=valid_loader, model=model, criterion=criterion, aux_criterion=aux_criterion
                             ,epoch=epoch, device=device)
         scheduler.step()
 
@@ -64,7 +64,10 @@ def main(res):
 
         writer.add_scalar('learning_rate', optimizer.param_groups[0]['lr'], epoch)
         writer.add_scalar('Train/loss', train_loss, epoch)
+        writer.add_scalar('Train/aux_loss', train_aux_loss, epoch)
         writer.add_scalar('Val/loss', val_loss, epoch)
+        writer.add_scalar('Val/aux_loss', val_aux_loss, epoch)
+
 
         valid_metric = val_loss
         is_best = False
@@ -140,7 +143,7 @@ def train(train_loader, model, criterion, aux_criterion, optimizer, epoch, devic
         loss.backward()
         optimizer.step()
 
-    return Epoch_loss1.avg
+    return Epoch_loss1.avg, AUX_loss.avg
 
 def valiation(val_loader, model, criterion, aux_criterion, epoch, device):
     Epoch_loss = AverageMeter()
@@ -169,7 +172,7 @@ def valiation(val_loader, model, criterion, aux_criterion, epoch, device):
 
         print('Valid: [steps {0}], Main_Loss {loss.avg:.4f} Aux_Loss {Aux_loss.avg:.4f}'.format(
                len(val_loader), loss=Epoch_loss, Aux_loss=AUX_loss))
-    return Epoch_loss.avg
+    return Epoch_loss.avg, AUX_loss.avg
 
 def save_checkpoint(state, is_best, out_dir, model_name):
     checkpoint_path = out_dir+model_name+'_checkpoint.pth.tar'
