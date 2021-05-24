@@ -9,7 +9,6 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 def predict_mask(net, full_img, device, out_threshold=0.5):
     net.eval()
-
     img = torch.from_numpy(full_img)
 
     img = img.unsqueeze(0)
