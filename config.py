@@ -12,7 +12,7 @@ parser.add_argument('--validation', dest='val', type=float, default=10.0,help='P
 parser.add_argument('--print_freq', type=int, default=1)
 
 parser.add_argument('--num_workers', type=int, default=8)
-parser.add_argument('--crop_size',default=(64,128,128))
+parser.add_argument('--crop_size',default='64,128,128')
 parser.add_argument('--model',type=str, default='unet')
 parser.add_argument('--loss',type=str, default='CE')
 parser.add_argument('--aux_loss',type=str, default='dice')

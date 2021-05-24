@@ -13,6 +13,8 @@ from config import args
 
 torch.backends.cudnn.enabled = True
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+img_size = [int(d) for d in args.crop_size.split(',')]
+
 
 def main(res):
     best_metric = 100
@@ -22,7 +24,7 @@ def main(res):
         model.load_state_dict(torch.load(args.load, map_location=device))
         logging.info(f'Model loaded from {args.load}')
 
-    dataset = BasicDataset(args.train_img_folder, args.train_mask_folder,crop_size=args.crop_size)
+    dataset = BasicDataset(args.train_img_folder, args.train_mask_folder,crop_size=img_size)
     n_val = int(len(dataset) * args.val / 100)
     n_train = len(dataset) - n_val
     train_set, val_set = random_split(dataset, [n_train, n_val])
@@ -72,7 +74,7 @@ def main(res):
                 
             saved_metrics.append(valid_metric)
             saved_epos.append(epoch)
-            print('=======>   Best at epoch %d, valid MAE %f\n' % (epoch, best_metric))
+            print('=======>   Best at epoch %d, valid Loss %f\n' % (epoch, best_metric))
 
         save_checkpoint({'epoch': epoch
                         ,'state_dict': model.state_dict()}
