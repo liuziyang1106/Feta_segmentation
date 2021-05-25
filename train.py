@@ -24,14 +24,14 @@ def main(res):
         model.load_state_dict(torch.load(args.load, map_location=device))
         logging.info(f'Model loaded from {args.load}')
 
-    dataset = BasicDataset(args.train_img_folder, args.train_mask_folder,crop_size=img_size)
+    dataset = BasicDataset(args.train_img_folder, args.train_mask_folder, crop_size=img_size)
     n_val = int(len(dataset) * args.val / 100)
     n_train = len(dataset) - n_val
     train_set, val_set = random_split(dataset, [n_train, n_val])
     train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True
                              ,num_workers=args.num_workers, pin_memory=True)
     valid_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=False
-                           ,num_workers=args.num_workers, pin_memory=True, drop_last=True)
+                           ,num_workers=args.num_workers, pin_memory=True)
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-8)
     # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min' if model.n_classes > 1 else 'max', patience=2)
@@ -51,9 +51,9 @@ def main(res):
 
     for epoch in range(args.epochs):
         train_loss, train_aux_loss = train(train_loader, model=model, criterion=criterion, aux_criterion = aux_criterion
-                          ,optimizer = optimizer, epoch = epoch, device = device)
+                                          ,optimizer = optimizer, epoch = epoch, device = device)
         val_loss, val_aux_loss = valiation(val_loader=valid_loader, model=model, criterion=criterion, aux_criterion=aux_criterion
-                            ,epoch=epoch, device=device)
+                                          ,device=device)
         scheduler.step()
 
         # ===========  write in tensorboard scaler =========== #
@@ -145,7 +145,7 @@ def train(train_loader, model, criterion, aux_criterion, optimizer, epoch, devic
 
     return Epoch_loss1.avg, AUX_loss.avg
 
-def valiation(val_loader, model, criterion, aux_criterion, epoch, device):
+def valiation(val_loader, model, criterion, aux_criterion, device):
     Epoch_loss = AverageMeter()
     AUX_loss = AverageMeter()
     model.eval()
