@@ -43,6 +43,10 @@ def Inference_Folder_images(net, model_ckpt, folder_path, output_path='./'):
     
     if not os.path.exists(output_path):
         os.makedirs(output_path)
+        os.makedirs(output_path + 'pred')
+        os.makedirs(output_path + 'mask/')
+        os.makedirs(output_path + 'imgs/')
+
 
     for img_path in os.listdir(folder_path):
         if 'T2w' in img_path:
@@ -53,15 +57,15 @@ def Inference_Folder_images(net, model_ckpt, folder_path, output_path='./'):
             sub_id = (img_path.split('/')[-1]).replace('T2w', 'pred')
             print(sub_id)
             mask = predict_mask(net=net,full_img=img_data,out_threshold=0.5,device=device)
-            inference_path = os.path.join(output_path, sub_id)
+            inference_path = os.path.join(output_path+ 'pred', sub_id)
             predict_img = nib.Nifti1Image(mask, img_affine).to_filename(inference_path)
-            shutil.copyfile(os.path.join(folder_path,img_path),os.path.join(output_path, img_path))
-
-
+            shutil.copyfile(os.path.join(folder_path,img_path),os.path.join(output_path+ 'imgs/', img_path))
+        if 'dseg' in img_path:
+            shutil.copyfile(os.path.join(folder_path,img_path),os.path.join(output_path+ 'mask/', img_path))
 if __name__ == "__main__":
-    model = "./runs/test_dice_loss_64*64*128/unet_best_model.pth.tar"
+    model = "./runs/3DUnet_base_10_dice_loss_64*64*128/unet_best_model.pth.tar"
     img_path = "data/imgs_crop/sub-015_T2w.nii.gz"
-    folder = "data/imgs_crop/"
+    folder = "data/test/"
     net = UNet(n_channels=1, n_classes=8)
     # Inference_single_image(net, model, img_path)
     Inference_Folder_images(net, model, folder,'data/inference/')

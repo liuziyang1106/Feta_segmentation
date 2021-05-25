@@ -118,7 +118,8 @@ class SegEval(object):
         if not (np.count_nonzero(sitk.GetArrayFromImage(img1)) and np.count_nonzero(sitk.GetArrayFromImage(img2))):
             print("One or more image is empty!")
             return False
-        elif (img1.GetSpacing() != img2.GetSpacing()):
+        elif (int(img1.GetSpacing()[0]*1000) != int(img2.GetSpacing()[0]*1000)):
+            print(img1.GetSpacing(), img2.GetSpacing())
             print("Spacing of corresponding image files ({}) don't match!".format(filename))
             return False
         else: return True
@@ -363,7 +364,7 @@ class SegEval(object):
 
         (results_metric, results_value) = self.eval_results
         results_df = pd.DataFrame(data=results_value, index=self.filename, columns=results_metric)
-        results_df.to_csv(export_path + '/results.csv')
+        results_df.to_excel(export_path + '/results.xlsx')
         print("Evaluation results have been saved to {}!".format(export_path))
 
 
@@ -413,9 +414,8 @@ if __name__ == "__main__":
     # test1.export_eval_results("eval_results/")
 
     
-    test2 = SegEval("test_10_dice_loss_64*64*128/predict/","test_10_dice_loss_64*64*128/gt/")
+    test2 = SegEval("data/inference/pred/","data/inference/mask/")
     test2.evaluation_by_folder(["dice", "acc", "hausdorff", "volume similarity"])
-    test2.export_eval_results("eval_results/")
-    # test1.visualize_file("/Users/catherine/Desktop/Research/eyeball-segmentation-evaluation/img-eyeball/HB039124OAV_00351_2015-07-13_4_img.nii")
-    # test1.export_visual_results("/Users/catherine/Desktop/Research/eyeball-segmentation-evaluation/results")
+    test2.export_eval_results("data/inference")
+
     
