@@ -5,7 +5,7 @@ import torch.nn as nn
 from torch import optim
 from model_zoo.unet3d import UNet
 from inferrence import *
-from dice_loss import dice_coeff, DiceCoeff,DiceLoss
+from dice_loss import DiceLoss
 from dataset import BasicDataset
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
