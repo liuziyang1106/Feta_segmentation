@@ -35,7 +35,7 @@ def main(res):
 
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-8)
     # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min' if model.n_classes > 1 else 'max', patience=2)
-    scheduler = optim.lr_scheduler.StepLR(optimizer,step_size=5, gamma=0.5,verbose=1)
+    scheduler = optim.lr_scheduler.StepLR(optimizer,step_size=10, gamma=0.5,verbose=1)
 
     # Setting the loss function
     loss_func_dict = {'CE': nn.CrossEntropyLoss().to(device)
@@ -99,12 +99,13 @@ def main(res):
     
     # ===========  clean up ===========  #
     torch.cuda.empty_cache()
+    
     model_ckpt = os.path.join(args.output_dir, args.model+'_best_model.pth.tar')
     Inference_Folder_images(model, model_ckpt, args.train_img_folder,os.path.join(args.output_dir, 'pred_train_mask/'))
     Inference_Folder_images(model, model_ckpt, args.test_img_folder,os.path.join(args.output_dir, 'pred_test_mask/'))
 
     evl = SegEval(os.path.join(args.output_dir, 'pred_test_mask/pred'),os.path.join(args.output_dir, 'pred_test_mask/mask'))
-    evl.evaluation_by_folder(["dice", "acc", "hausdorff", "volume similarity"])
+    evl.evaluation_by_folder(["dice", "acc", "hausdorff", "volume similarity", "sensitivity", "precision"])
     evl.export_eval_results(args.output_dir)
     return 0
 
@@ -132,7 +133,7 @@ def train(train_loader, model, criterion, aux_criterion, optimizer, epoch, devic
         true_masks = torch.squeeze(true_masks, dim=1)
         loss1 = criterion(masks_pred, true_masks)
         aux_loss = aux_criterion(masks_pred, true_masks)
-        loss = loss1 + 20 * aux_loss
+        loss = loss1 + 40 * aux_loss
         
         Epoch_loss1.update(loss1, imgs.size(0))
         AUX_loss.update(aux_loss, imgs.size(0))

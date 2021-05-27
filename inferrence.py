@@ -62,13 +62,15 @@ def Inference_Folder_images(net, model_ckpt, folder_path, output_path='./'):
             shutil.copyfile(os.path.join(folder_path,img_path),os.path.join(output_path+ 'imgs/', img_path))
         if 'dseg' in img_path:
             shutil.copyfile(os.path.join(folder_path,img_path),os.path.join(output_path+ 'mask/', img_path))
+
+            
 if __name__ == "__main__":
-    model = "./runs/3DUnet_base_10_dice_loss_64*64*128/unet_best_model.pth.tar"
+    model = "./runs/3DUnet_base_resample_40_dice_loss_64*64*128/unet_best_model.pth.tar"
     img_path = "data/imgs_crop/sub-015_T2w.nii.gz"
-    folder = "data/test/"
+    folder = "data/test_resample/"
     net = UNet(n_channels=1, n_classes=8)
     # Inference_single_image(net, model, img_path)
-    Inference_Folder_images(net, model, folder,'data/inference/')
+    Inference_Folder_images(net, model, folder,'./runs/3DUnet_base_resample_40_dice_loss_64*64*128/pred_test/')
 
     
 
