@@ -38,5 +38,7 @@ class HausdorffDTLoss(nn.Module):
 
 
     def forward(self, pred, target, debug=False) :
-        assert pred.dim() == 4 or pred.dim() == 5           ''' Only 2D and 3D supported '''
-        assert (pred.dim() == target.dim()),                ''' Prediction and target need to be of same dimension ''' 
+        assert pred.dim() == 4 or pred.dim() == 5           
+        ''' Only 2D and 3D supported '''
+        assert (pred.dim() == target.dim())                
+        ''' Prediction and target need to be of same dimension ''' 
