@@ -1,10 +1,10 @@
 #!/bin/bash
-csize=64,64,128
-tipath=/home/liuziyang/workspace/FeTA/Pytorch-UNet/data/img_resample_crop/
-tmpath=/home/liuziyang/workspace/FeTA/Pytorch-UNet/data/mask_resample_crop/
-ifpath=/home/liuziyang/workspace/FeTA/Pytorch-UNet/data/test_resample/
+csize=64,128,128
+tipath=./data/data_2.1/T2/
+tmpath=./data/data_2.1/Seg/
+ifpath=./data/data_2.1/Test/
 
-save_path=./runs/3DUnet_base_resample_40_dice_loss_64*64*128/
+save_path=./runs/3DUnet_base_FeTA2.1_40_dice_loss_64*128*128/
 
 CUDA_VISIBLE_DEVICES=0     python train.py     \
 --output_dir          ${save_path}             \

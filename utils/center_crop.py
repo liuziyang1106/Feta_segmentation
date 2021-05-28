@@ -12,7 +12,7 @@ def center_crop(file_path, seg_path, sub_id, img_target_path, mask_target_path):
 
     print(padding_img.shape)
     center_coord = ndimage.measurements.center_of_mass(padding_img)
-    crop_size = 64
+    crop_size = 90
     crop_img = padding_img[int(center_coord[0])-crop_size:int(center_coord[0])+crop_size
                           ,int(center_coord[1])-crop_size:int(center_coord[1])+crop_size
                           ,int(center_coord[2])-crop_size:int(center_coord[2])+crop_size
@@ -29,7 +29,7 @@ def center_crop(file_path, seg_path, sub_id, img_target_path, mask_target_path):
     seg_img = nib.Nifti1Image(crop_seg, seg_affine).to_filename(seg_save_path)
 
 def main():
-    root_path = "/home/liuziyang/workspace/FeTA/data/raw_data"
+    root_path = "/data/ziyang/workspace/FeTA/data/raw_data_2.1"
     for sub_folder in os.listdir(root_path):
         data_folder = os.path.join(root_path, sub_folder, 'anat')
         for files in os.listdir(data_folder):
@@ -38,5 +38,7 @@ def main():
             elif 'dseg.nii.gz' in files:
                 seg_path = os.path.join(data_folder, files)
 
-        center_crop(file_path, seg_path, sub_folder, "/home/liuziyang/workspace/FeTA/data/Crop_Data/")
+        center_crop(file_path, seg_path, sub_folder
+                  , "/data/ziyang/workspace/FeTA/data/Crop_Data_2.1/"
+                  , "/data/ziyang/workspace/FeTA/data/Crop_Data_2.1/")
 main()
