@@ -42,3 +42,30 @@ class HausdorffDTLoss(nn.Module):
         ''' Only 2D and 3D supported '''
         assert (pred.dim() == target.dim())                
         ''' Prediction and target need to be of same dimension ''' 
+
+        # pred = torch.sigmoid(pred)
+
+        pred_dt = torch.from_numpy(self.distance_field(pred.cpu().numpy())).float()
+        target_dt = torch.from_numpy(self.distance_field(target.cpu().numpy())).float()
+
+        pred_error = (pred - target) ** 2
+        distance = pred_dt ** self.alpha + target_dt ** self.alpha
+
+        dt_field = pred_error * distance
+
+        loss = dt_field.mean()
+
+        if debug:
+            return (
+                loss.cpu().numpy(),
+                (
+                    dt_field.cpu().numpy()[0, 0],
+                    pred_error.cpu().numpy()[0, 0],
+                    distance.cpu().numpy()[0, 0],
+                    pred_dt.cpu().numpy()[0, 0],
+                    target_dt.cpu().numpy()[0, 0],
+                ),
+            )
+
+        else:
+            return loss
