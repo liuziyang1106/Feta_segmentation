@@ -16,6 +16,8 @@ parser.add_argument('--crop_size',default='64,128,128')
 parser.add_argument('--model',type=str, default='unet')
 parser.add_argument('--loss',type=str, default='CE')
 parser.add_argument('--aux_loss',type=str, default='dice')
+parser.add_argument('--lbd',type=float, default=20.0)
+
 
 parser.add_argument('--output_dir', default='./runs/')
 parser.add_argument('--train_img_folder', default='./data/imgs_crop/')
