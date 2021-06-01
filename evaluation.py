@@ -414,8 +414,9 @@ if __name__ == "__main__":
     # test1.export_eval_results("eval_results/")
 
     
-    test2 = SegEval("data/inference/pred/","data/inference/mask/")
+    test2 = SegEval("runs/3DUnet_base_resample_40_dice_loss_64*128*128/pred_test_mask/mask"
+                   ,"runs/3DUnet_base_resample_40_dice_loss_64*128*128/pred_test_mask/pred")
     test2.evaluation_by_folder(["dice", "acc", "hausdorff", "volume similarity"])
-    test2.export_eval_results("data/inference")
+    test2.export_eval_results("runs/3DUnet_base_resample_40_dice_loss_64*128*128/")
 
     

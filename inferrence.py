@@ -65,12 +65,12 @@ def Inference_Folder_images(net, model_ckpt, folder_path, output_path='./'):
 
             
 if __name__ == "__main__":
-    model = "./runs/3DUnet_base_resample_40_dice_loss_64*64*128/unet_best_model.pth.tar"
-    img_path = "data/imgs_crop/sub-015_T2w.nii.gz"
-    folder = "data/test_resample/"
+    model = "./runs/3DUnet_base_resample_40_dice_loss_64*128*128/unet_best_model.pth.tar"
+    img_path = "data/data_2.1/imgs_crop/sub-015_T2w.nii.gz"
+    folder = "data/data_2.1/Test/"
     net = UNet(n_channels=1, n_classes=8)
     # Inference_single_image(net, model, img_path)
-    Inference_Folder_images(net, model, folder,'./runs/3DUnet_base_resample_40_dice_loss_64*64*128/pred_test/')
+    Inference_Folder_images(net, model, folder,'./runs/3DUnet_base_resample_40_dice_loss_64*128*128/pred_test/')
 
     
 
