@@ -170,3 +170,27 @@ class AveragedHaursdorffLoss(nn.Module):
 
         res = term1 + term2
         return res
+
+
+
+class HaursdorffLoss(nn.Module):
+    def __init__(self):
+        super(HaursdorffLoss, self).__init__()
+
+    def forward(self, pred, target):
+        # pred Input shape B, C, H, W D
+        pred = torch.softmax(pred, dim=1)        
+        pred = pred.squeeze(0)
+        pred = torch.argmax(pred, dim=1)                 #B, H, W D
+
+        
+        print(pred.shape, target.shape)
+
+
+
+if __name__ == '__main__':
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
+    pred = torch.autograd.Variable(torch.rand(2,8,4,4,4)).to(device)
+    target = torch.autograd.Variable(torch.rand(2,4,4,4)).to(device)
+    criterion = HaursdorffLoss()
+    criterion(pred, target)
