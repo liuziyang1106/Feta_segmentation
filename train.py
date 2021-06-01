@@ -133,7 +133,7 @@ def train(train_loader, model, criterion, aux_criterion, optimizer, epoch, devic
         true_masks = torch.squeeze(true_masks, dim=1)
         loss1 = criterion(masks_pred, true_masks)
         aux_loss = aux_criterion(masks_pred, true_masks)
-        loss = loss1 + 40 * aux_loss
+        loss = loss1 + args.lbd * aux_loss
         
         Epoch_loss1.update(loss1, imgs.size(0))
         AUX_loss.update(aux_loss, imgs.size(0))

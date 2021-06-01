@@ -1,10 +1,10 @@
 #!/bin/bash
-csize=64,128,128
+csize=96,128,96
 tipath=./data/data_2.1/T2/
 tmpath=./data/data_2.1/Seg/
 ifpath=./data/data_2.1/Test/
 
-save_path=./runs/3DUnet_base_FeTA2.1_40_dice_loss_64*128*128/
+save_path=./runs/3DUnet_base_FeTA2.1_40_dice_loss_96*128*96/
 
 CUDA_VISIBLE_DEVICES=0     python train.py     \
 --output_dir          ${save_path}             \
@@ -16,3 +16,4 @@ CUDA_VISIBLE_DEVICES=0     python train.py     \
 --train_img_folder    ${tipath}                \
 --train_mask_folder   ${tmpath}                \
 --test_img_folder     ${ifpath}                \
+--lbd                 40                       \
