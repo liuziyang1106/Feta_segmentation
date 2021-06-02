@@ -35,8 +35,8 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
     pred = torch.autograd.Variable(torch.rand(2,8,4,4,4)).to(device)
     target = torch.autograd.Variable(torch.rand(2,4,4,4)).to(device)
-    weight = torch.cuda.FloatTensor([0.1, 0.15, 0.1, 0.1,
-                                     0.1, 0.05, 0.1, 0.1])
+    weight = torch.cuda.FloatTensor([1.14, 3.44, 5.19, 3.33,
+                                     9.45, 13.28, 9.35, 17.49])
     criterion = WeightedCrossEntropy(weight)
     loss = criterion(pred, target)
     print(loss)

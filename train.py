@@ -43,8 +43,8 @@ def main(res):
     loss_func_dict = {'CE': nn.CrossEntropyLoss().to(device)
                      ,'dice':DiceLoss().to(device)
                      ,'focal':FocalLoss().to(device)
-                     ,'WCE':WeightedCrossEntropy(torch.cuda.FloatTensor([0.1, 0.15, 0.1, 0.1,
-                                                                         0.1, 0.05, 0.1, 0.1])).to(device)
+                     ,'WCE':WeightedCrossEntropy(torch.cuda.FloatTensor([1.18, 5.28, 5.49, 3.62,
+                                                                         9.32, 14.92, 10.48, 17.65])).to(device)
                      ,'L1':nn.L1Loss().to(device)
                      ,'L2':nn.MSELoss().to(device)}
 
