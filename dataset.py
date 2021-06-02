@@ -71,7 +71,7 @@ class BasicDataset(Dataset):
 
         mask = nii_loader(mask_file[0])
         img = nii_loader(img_file[0])
-        img = white0(img)
+        # img = white0(img)
 
         img, mask = self.randomCrop(img, mask, self.crop_size[0], self.crop_size[1], self.crop_size[2])
         

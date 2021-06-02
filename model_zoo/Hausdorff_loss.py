@@ -184,6 +184,7 @@ class HaursdorffLoss(nn.Module):
         pred = torch.argmax(pred, dim=1)                 #B, H, W D
 
         
+        
         print(pred.shape, target.shape)
 
 
