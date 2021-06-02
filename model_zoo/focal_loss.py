@@ -40,9 +40,9 @@ class FocalLoss(nn.Module):
 
         
     def forward(self, logit, target):
-        if self.apply_nonlin is not None:
-            logit = self.apply_nonlin(logit)
-
+        # if self.apply_nonlin is not None:
+        #     logit = self.apply_nonlin(logit)
+        logit = F.softmax(logit,dim=1)
         num_class = logit.shape[1]
 
         if logit.dim() > 2:
@@ -98,3 +98,11 @@ class FocalLoss(nn.Module):
             loss = loss.sum()
 
         return loss
+
+if __name__ == '__main__':
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu") 
+    pred = torch.autograd.Variable(torch.rand(2,8,4,4,4)).to(device)
+    target = torch.autograd.Variable(torch.rand(2,4,4,4)).to(device)
+    criterion = FocalLoss()
+    loss = criterion(pred, target)
+    print(loss)

@@ -4,8 +4,8 @@ tipath=./data/data_2.1/T2/
 tmpath=./data/data_2.1/Seg/
 ifpath=./data/data_2.1/Test/
 
-lbd=60
-save_path=./runs/3DUnet_base_FeTA2.1_${lbd}_dice_loss_${csize}/
+lbd=1
+save_path=./runs/3DUnet_base_FeTA2.1_focal_${lbd}_dice_loss_${csize}/
 
 CUDA_VISIBLE_DEVICES=0     python train.py     \
 --output_dir          ${save_path}             \
@@ -17,4 +17,6 @@ CUDA_VISIBLE_DEVICES=0     python train.py     \
 --train_img_folder    ${tipath}                \
 --train_mask_folder   ${tmpath}                \
 --test_img_folder     ${ifpath}                \
+--loss                focal                    \
+--aux_loss            dice                     \
 --lbd                 ${lbd}                   \

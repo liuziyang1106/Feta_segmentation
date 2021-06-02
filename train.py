@@ -5,7 +5,9 @@ import torch.nn as nn
 from torch import optim
 from model_zoo.unet3d import UNet
 from inferrence import *
-from dice_loss import DiceLoss
+from model_zoo.dice_loss import DiceLoss
+from model_zoo.focal_loss import FocalLoss
+from model_zoo.WeightCE import WeightedCrossEntropy
 from dataset import BasicDataset
 from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
@@ -40,6 +42,9 @@ def main(res):
     # Setting the loss function
     loss_func_dict = {'CE': nn.CrossEntropyLoss().to(device)
                      ,'dice':DiceLoss().to(device)
+                     ,'focal':FocalLoss().to(device)
+                     ,'WCE':WeightedCrossEntropy(torch.cuda.FloatTensor([0.1, 0.15, 0.1, 0.1,
+                                                                         0.1, 0.05, 0.1, 0.1])).to(device)
                      ,'L1':nn.L1Loss().to(device)
                      ,'L2':nn.MSELoss().to(device)}
 
