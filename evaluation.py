@@ -357,14 +357,14 @@ class SegEval(object):
             self.eval_results = (results_metric, results_values)
 
 
-    def export_eval_results(self, export_path):
+    def export_eval_results(self, export_path, excel_name='/results.xlsx'):
         """
         Export the evaluation results (CSV) to a customized location.
         """
 
         (results_metric, results_value) = self.eval_results
         results_df = pd.DataFrame(data=results_value, index=self.filename, columns=results_metric)
-        results_df.to_excel(export_path + '/results.xlsx')
+        results_df.to_excel(export_path + excel_name)
         print("Evaluation results have been saved to {}!".format(export_path))
 
 
